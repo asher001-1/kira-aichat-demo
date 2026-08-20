@@ -861,7 +861,7 @@ body{
 /* Scheme B:右下角 FAB(Kira mascot 圆形图标,用户提供 SVG) */
 .fab{
   position:absolute;right:24px;bottom:24px;z-index:26;
-  width:56px;height:56px;border-radius:var(--radius-full);
+  width:48px;height:48px;border-radius:var(--radius-full);
   background:transparent;border:0;padding:0;
   box-shadow:var(--shadow-lg);
   display:none;align-items:center;justify-content:center;
@@ -869,7 +869,7 @@ body{
   transition:transform .12s linear;
 }
 .fab:hover{transform:translateY(-1px)}
-.fab .fab-mascot{width:56px;height:56px;display:block;border-radius:var(--radius-full)}
+.fab .fab-mascot{width:48px;height:48px;display:block;border-radius:var(--radius-full)}
 .fab .ic{width:24px;height:24px}
 .fab .fab-x{display:none}
 .app.scheme-b .fab{display:flex}
@@ -881,8 +881,8 @@ body{
    (圆角 + 彩虹渐变描边按 Grading Studio 11230:74569 外框近似) */
 .app.scheme-b #ask-kira{display:none}
 .app.scheme-b .drawer{
-  top:auto;right:24px;bottom:96px;
-  height:clamp(360px,calc(100% - 120px),680px);
+  top:auto;right:24px;bottom:88px;
+  height:clamp(360px,calc(100% - 112px),680px);
   border-radius:var(--radius-md);
   border:2px solid transparent;
   background:linear-gradient(var(--primitive-base-white),var(--primitive-base-white)) padding-box,
