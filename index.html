@@ -156,6 +156,7 @@ body{
   background:var(--purple-1400);
   display:flex;flex-direction:column;justify-content:space-between;
   padding:var(--space-4) 0;
+  position:relative;z-index:40;
 }
 .rail-group{display:flex;flex-direction:column;align-items:center;gap:var(--space-1)}
 .rail-group--top{gap:0}
@@ -833,6 +834,68 @@ body{
 }
 .ctx-x:hover{color:var(--primitive-neutral-900)}
 
+/* ==========================================================================
+   方案切换(演示控件,Xiaoyue 2026-08-20 提议双方案评审)
+   Scheme A:顶栏入口 + 贴边浮层 / Scheme B:右下角 FAB + 浮动卡片
+   ========================================================================== */
+.rail-switch{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;gap:2px;
+  padding:3px;border-radius:10px;
+  background:rgba(255,255,255,.08);
+}
+.rail-switch button{
+  width:34px;height:32px;border:0;border-radius:var(--radius-sm);
+  background:transparent;color:rgba(255,255,255,.75);
+  font-family:inherit;font-size:var(--font-size-xs);line-height:1;
+  font-weight:var(--font-weight-medium);
+  cursor:pointer;transition:background .12s ease,color .12s ease;
+}
+.rail-switch button:hover{background:rgba(255,255,255,.10);color:#fff}
+.rail-switch button.is-active{background:var(--primitive-base-white);color:var(--purple-1400)}
+.rail-switch button:focus-visible{outline:var(--focus-ring-width) solid var(--purple-light);outline-offset:-2px}
+/* tooltip 侧向变体(rail 太窄 / FAB 贴右缘) */
+.tip--right::after{top:50%;left:calc(100% + 10px);transform:translateY(-50%)}
+.tip--left::after{top:50%;left:auto;right:calc(100% + 10px);transform:translateY(-50%)}
+
+/* Scheme B:右下角 FAB */
+.fab{
+  position:absolute;right:24px;bottom:24px;z-index:26;
+  width:56px;height:56px;border-radius:var(--radius-full);
+  background:var(--primitive-base-white);
+  border:1px solid var(--border-primary);
+  box-shadow:var(--shadow-lg);
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;font-family:inherit;
+  transition:transform .12s ease;
+}
+.fab:hover{transform:translateY(-1px)}
+.fab .ic{width:24px;height:24px}
+.fab .fab-x{display:none}
+.app.scheme-b .fab{display:flex}
+.app.ai-open .fab .fab-spark{display:none}
+.app.ai-open .fab .fab-x{display:block}
+
+/* Scheme B:隐藏顶栏入口,抽屉变右下浮动卡片
+   (圆角 + 彩虹渐变描边按 Grading Studio 11230:74569 外框近似) */
+.app.scheme-b #ask-kira{display:none}
+.app.scheme-b .drawer{
+  top:auto;right:24px;bottom:96px;
+  height:min(680px,calc(100% - 120px));
+  border-radius:var(--radius-md);
+  border:2px solid transparent;
+  background:linear-gradient(var(--primitive-base-white),var(--primitive-base-white)) padding-box,
+             linear-gradient(160deg,#F9B8E4 0%,var(--purple-light) 48%,#FFF0A8 100%) border-box;
+  transform:translateY(16px) scale(.98);opacity:0;
+  transform-origin:bottom right;
+  transition:transform .2s ease,opacity .2s ease,visibility 0s linear .2s;
+}
+.app.scheme-b.ai-open .drawer{
+  transform:translateY(0) scale(1);opacity:1;visibility:visible;
+  transition:transform .2s ease,opacity .2s ease;
+}
+.app.scheme-b .drawer-panel{border-left:0;border-radius:calc(var(--radius-md) - 2px);overflow:hidden}
+
 .svg-defs{position:absolute;width:0;height:0;overflow:hidden}
 </style>
 </head>
@@ -958,6 +1021,10 @@ body{
             <button class="rail-item" aria-label="Create"><span class="ic" style="width:20px;height:20px"><svg class="g g-sparkle20" preserveAspectRatio="none"><use href="#p-sparkle-nav"/></svg></span></button>
             <button class="rail-item" aria-label="Evaluate"><span class="ic" style="width:20px;height:20px"><svg class="g g-pennib" preserveAspectRatio="none"><use href="#p-pennib"/></svg></span></button>
             <button class="rail-item" aria-label="Manage"><span class="ic" style="width:20px;height:20px"><svg class="g g-abook" preserveAspectRatio="none"><use href="#p-abook"/></svg></span></button>
+          </div>
+          <div class="rail-switch" role="tablist" aria-label="Demo scheme switch">
+            <button id="scheme-a" class="tip tip--right is-active" data-tip="Scheme A · Top bar entry" role="tab" aria-selected="true">A</button>
+            <button id="scheme-b" class="tip tip--right" data-tip="Scheme B · Floating corner" role="tab" aria-selected="false">B</button>
           </div>
           <div class="rail-group">
             <button class="rail-item" aria-label="Help"><span class="ic" style="width:20px;height:20px"><svg class="g g-question" preserveAspectRatio="none"><use href="#p-question"/></svg></span></button>
@@ -1251,6 +1318,11 @@ body{
               </div>
             </aside>
 
+            <button class="fab tip tip--left" id="fab" data-tip="Ask Kira AI" aria-label="Ask Kira AI">
+              <span class="ic fab-spark" style="width:24px;height:24px"><svg class="g g-sparkleai" preserveAspectRatio="none"><use href="#p-sparkle-ai"/></svg></span>
+              <span class="ic fab-x" style="width:24px;height:24px"><svg class="g g-x" preserveAspectRatio="none"><use href="#p-x24"/></svg></span>
+            </button>
+
           </div>
         </div>
 
@@ -1374,14 +1446,34 @@ body{
     drawer.setAttribute('data-view', v);
     histBtn.setAttribute('aria-pressed', String(v === 'history'));
   }
+  var fabBtn = document.getElementById('fab');
   function openDrawer(open) {
     app.classList.toggle('ai-open', open);
     askBtn.setAttribute('aria-expanded', String(open));
+    fabBtn.setAttribute('data-tip', open ? 'Close' : 'Ask Kira AI');
+    fabBtn.setAttribute('aria-label', open ? 'Close' : 'Ask Kira AI');
     if (open) {
       syncSelectedCtx();
       setTimeout(function () { chatInput.focus({ preventScroll: true }); }, 260);
     }
   }
+  fabBtn.addEventListener('click', function () {
+    openDrawer(!app.classList.contains('ai-open'));
+  });
+
+  /* 方案切换(演示):A 顶栏入口 / B 右下角浮动 */
+  var schemeA = document.getElementById('scheme-a');
+  var schemeB = document.getElementById('scheme-b');
+  function setScheme(s) {
+    openDrawer(false);
+    app.classList.toggle('scheme-b', s === 'b');
+    schemeA.classList.toggle('is-active', s === 'a');
+    schemeB.classList.toggle('is-active', s === 'b');
+    schemeA.setAttribute('aria-selected', String(s === 'a'));
+    schemeB.setAttribute('aria-selected', String(s === 'b'));
+  }
+  schemeA.addEventListener('click', function () { setScheme('a'); });
+  schemeB.addEventListener('click', function () { setScheme('b'); });
 
   /* Selected Block 上下文条:题卡 / 题干 / 选项均可作为上下文(Lesson 机制映射) */
   var ctxBar = document.getElementById('ctx-bar');
