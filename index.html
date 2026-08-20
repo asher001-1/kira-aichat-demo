@@ -630,7 +630,7 @@ body{
 }
 .app.ai-open .drawer{transform:translateX(0);visibility:visible;transition:transform .24s ease}
 .drawer-panel{
-  width:100%;height:100%; /* 跟随容器内容区:方案 B 有 2px 渐变描边,写死 460 会横向溢出 4px */
+  width:100%;height:100%;
   display:flex;flex-direction:column;
   border-left:1px solid var(--border-primary);
 }
@@ -871,31 +871,13 @@ body{
 .fab:hover{transform:translateY(-1px)}
 .fab .fab-mascot{width:48px;height:48px;display:block;border-radius:var(--radius-full)}
 .fab .ic{width:20px;height:20px}
-.fab .fab-x{display:none}
 .app.scheme-b .fab{display:flex}
-.app.ai-open .fab{background:var(--primitive-base-white);border:1px solid var(--border-primary)}
-.app.ai-open .fab .fab-mascot{display:none}
-.app.ai-open .fab .fab-x{display:block}
 
-/* Scheme B:隐藏顶栏入口,抽屉变右下浮动卡片
-   (圆角 + 彩虹渐变描边按 Grading Studio 11230:74569 外框近似) */
+/* Scheme B:隐藏顶栏入口,FAB 展开与 A 相同的右侧全高抽屉
+   (2026-08-20 团队反馈:浮动弹窗改抽屉,与 Lesson 形态一致;
+    抽屉打开时隐藏 FAB,关闭走抽屉头部按钮,避免遮挡输入区) */
 .app.scheme-b #ask-kira{display:none}
-.app.scheme-b .drawer{
-  top:auto;right:24px;bottom:88px;
-  height:clamp(360px,calc(100% - 112px),680px);
-  border-radius:var(--radius-md);
-  border:2px solid transparent;
-  background:linear-gradient(var(--primitive-base-white),var(--primitive-base-white)) padding-box,
-             linear-gradient(160deg,#F9B8E4 0%,var(--purple-light) 48%,#FFF0A8 100%) border-box;
-  transform:translateY(16px) scale(.98);opacity:0;
-  transform-origin:bottom right;
-  transition:transform .2s ease,opacity .2s ease,visibility 0s linear .2s;
-}
-.app.scheme-b.ai-open .drawer{
-  transform:translateY(0) scale(1);opacity:1;visibility:visible;
-  transition:transform .2s ease,opacity .2s ease;
-}
-.app.scheme-b .drawer-panel{border-left:0;border-radius:calc(var(--radius-md) - 2px);overflow:hidden}
+.app.scheme-b.ai-open .fab{display:none}
 
 .svg-defs{position:absolute;width:0;height:0;overflow:hidden}
 </style>
@@ -1025,7 +1007,7 @@ body{
           </div>
           <div class="rail-switch" role="tablist" aria-label="Demo scheme switch">
             <button id="scheme-a" class="tip tip--right is-active" data-tip="Scheme A · Top bar entry" role="tab" aria-selected="true">A</button>
-            <button id="scheme-b" class="tip tip--right" data-tip="Scheme B · Floating corner" role="tab" aria-selected="false">B</button>
+            <button id="scheme-b" class="tip tip--right" data-tip="Scheme B · Floating entry" role="tab" aria-selected="false">B</button>
           </div>
           <div class="rail-group">
             <button class="rail-item" aria-label="Help"><span class="ic" style="width:20px;height:20px"><svg class="g g-question" preserveAspectRatio="none"><use href="#p-question"/></svg></span></button>
@@ -1335,7 +1317,6 @@ body{
                   </clipPath>
                 </defs>
               </svg>
-              <span class="ic fab-x" style="width:20px;height:20px"><svg class="g g-x" preserveAspectRatio="none"><use href="#p-x24"/></svg></span>
             </button>
 
           </div>
@@ -1465,8 +1446,6 @@ body{
   function openDrawer(open) {
     app.classList.toggle('ai-open', open);
     askBtn.setAttribute('aria-expanded', String(open));
-    fabBtn.setAttribute('data-tip', open ? 'Close' : 'Ask Kira AI');
-    fabBtn.setAttribute('aria-label', open ? 'Close' : 'Ask Kira AI');
     if (open) {
       syncSelectedCtx();
       setTimeout(function () { chatInput.focus({ preventScroll: true }); }, 260);
@@ -1476,7 +1455,7 @@ body{
     openDrawer(!app.classList.contains('ai-open'));
   });
 
-  /* 方案切换(演示):A 顶栏入口 / B 右下角浮动 */
+  /* 方案切换(演示):A 顶栏入口 / B 右下角浮动入口,两者展开同款右侧抽屉 */
   var schemeA = document.getElementById('scheme-a');
   var schemeB = document.getElementById('scheme-b');
   function setScheme(s) {
