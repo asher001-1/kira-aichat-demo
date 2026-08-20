@@ -630,7 +630,7 @@ body{
 }
 .app.ai-open .drawer{transform:translateX(0);visibility:visible;transition:transform .24s ease}
 .drawer-panel{
-  width:var(--drawer-width);height:100%;
+  width:100%;height:100%; /* 跟随容器内容区:方案 B 有 2px 渐变描边,写死 460 会横向溢出 4px */
   display:flex;flex-direction:column;
   border-left:1px solid var(--border-primary);
 }
