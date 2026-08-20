@@ -71,7 +71,7 @@
   --banner-body:#1E3A8A;
 
   /* 抽屉专用(Assessment 2.0 10076:34418 / Grading Studio 11230:74569) */
-  --drawer-width:400px; /* 2026-08-20 由 460(Lesson 线上实测)调整为 400 */
+  --drawer-width:460px; /* 对齐 Lesson 线上实测宽度(2026-08-20 曾试 400,团队反馈后改回) */
   --chat-conv-bg:#F9FAFC;
   --chat-actions-bg:#F8F8F8;
   --chat-muted:#6D6D6D;
@@ -879,6 +879,23 @@ body{
 .app.scheme-b #ask-kira{display:none}
 .app.scheme-b.ai-open .fab{display:none}
 
+/* Scheme C:右边缘悬浮入口(按 Loki 2026-08-20 Slack 原型视频还原:
+   白色圆钮 + DS sparkle 渐变图标,悬浮于内容区右缘顶部),
+   点击展开与 A/B 相同的右侧全高抽屉;抽屉打开时按钮隐藏 */
+.edge-fab{
+  position:absolute;right:16px;top:120px;z-index:26;
+  width:48px;height:48px;border-radius:var(--radius-full);
+  background:var(--primitive-base-white);border:1px solid var(--border-primary);
+  box-shadow:var(--shadow-lg);
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;font-family:inherit;
+  transition:transform .12s linear;
+}
+.edge-fab:hover{transform:translateY(-1px)}
+.app.scheme-c .edge-fab{display:flex}
+.app.scheme-c #ask-kira{display:none}
+.app.scheme-c.ai-open .edge-fab{display:none}
+
 .svg-defs{position:absolute;width:0;height:0;overflow:hidden}
 </style>
 </head>
@@ -1008,6 +1025,7 @@ body{
           <div class="rail-switch" role="tablist" aria-label="Demo scheme switch">
             <button id="scheme-a" class="tip tip--right is-active" data-tip="Scheme A · Top bar entry" role="tab" aria-selected="true">A</button>
             <button id="scheme-b" class="tip tip--right" data-tip="Scheme B · Floating entry" role="tab" aria-selected="false">B</button>
+            <button id="scheme-c" class="tip tip--right" data-tip="Scheme C · Edge entry" role="tab" aria-selected="false">C</button>
           </div>
           <div class="rail-group">
             <button class="rail-item" aria-label="Help"><span class="ic" style="width:20px;height:20px"><svg class="g g-question" preserveAspectRatio="none"><use href="#p-question"/></svg></span></button>
@@ -1319,6 +1337,10 @@ body{
               </svg>
             </button>
 
+            <button class="edge-fab tip tip--left" id="edge-fab" data-tip="Ask Kira AI" aria-label="Ask Kira AI">
+              <span class="ic" style="width:20px;height:20px"><svg class="g g-sparkleai" preserveAspectRatio="none"><use href="#p-sparkle-ai"/></svg></span>
+            </button>
+
           </div>
         </div>
 
@@ -1454,20 +1476,27 @@ body{
   fabBtn.addEventListener('click', function () {
     openDrawer(!app.classList.contains('ai-open'));
   });
+  document.getElementById('edge-fab').addEventListener('click', function () {
+    openDrawer(!app.classList.contains('ai-open'));
+  });
 
-  /* 方案切换(演示):A 顶栏入口 / B 右下角浮动入口,两者展开同款右侧抽屉 */
+  /* 方案切换(演示):A 顶栏入口 / B 右下角浮动入口 / C 右缘悬浮入口,均展开同款右侧抽屉 */
   var schemeA = document.getElementById('scheme-a');
   var schemeB = document.getElementById('scheme-b');
+  var schemeC = document.getElementById('scheme-c');
+  var schemeBtns = { a: schemeA, b: schemeB, c: schemeC };
   function setScheme(s) {
     openDrawer(false);
     app.classList.toggle('scheme-b', s === 'b');
-    schemeA.classList.toggle('is-active', s === 'a');
-    schemeB.classList.toggle('is-active', s === 'b');
-    schemeA.setAttribute('aria-selected', String(s === 'a'));
-    schemeB.setAttribute('aria-selected', String(s === 'b'));
+    app.classList.toggle('scheme-c', s === 'c');
+    Object.keys(schemeBtns).forEach(function (k) {
+      schemeBtns[k].classList.toggle('is-active', k === s);
+      schemeBtns[k].setAttribute('aria-selected', String(k === s));
+    });
   }
   schemeA.addEventListener('click', function () { setScheme('a'); });
   schemeB.addEventListener('click', function () { setScheme('b'); });
+  schemeC.addEventListener('click', function () { setScheme('c'); });
 
   /* Selected Block 上下文条:题卡 / 题干 / 选项均可作为上下文(Lesson 机制映射) */
   var ctxBar = document.getElementById('ctx-bar');
