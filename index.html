@@ -858,22 +858,23 @@ body{
 .tip--right::after{top:50%;left:calc(100% + 10px);transform:translateY(-50%)}
 .tip--left::after{top:50%;left:auto;right:calc(100% + 10px);transform:translateY(-50%)}
 
-/* Scheme B:右下角 FAB */
+/* Scheme B:右下角 FAB(Kira mascot 圆形图标,用户提供 SVG) */
 .fab{
   position:absolute;right:24px;bottom:24px;z-index:26;
   width:56px;height:56px;border-radius:var(--radius-full);
-  background:var(--primitive-base-white);
-  border:1px solid var(--border-primary);
+  background:transparent;border:0;padding:0;
   box-shadow:var(--shadow-lg);
   display:none;align-items:center;justify-content:center;
   cursor:pointer;font-family:inherit;
-  transition:transform .12s ease;
+  transition:transform .12s linear;
 }
 .fab:hover{transform:translateY(-1px)}
+.fab .fab-mascot{width:56px;height:56px;display:block;border-radius:var(--radius-full)}
 .fab .ic{width:24px;height:24px}
 .fab .fab-x{display:none}
 .app.scheme-b .fab{display:flex}
-.app.ai-open .fab .fab-spark{display:none}
+.app.ai-open .fab{background:var(--primitive-base-white);border:1px solid var(--border-primary)}
+.app.ai-open .fab .fab-mascot{display:none}
 .app.ai-open .fab .fab-x{display:block}
 
 /* Scheme B:隐藏顶栏入口,抽屉变右下浮动卡片
@@ -1319,7 +1320,21 @@ body{
             </aside>
 
             <button class="fab tip tip--left" id="fab" data-tip="Ask Kira AI" aria-label="Ask Kira AI">
-              <span class="ic fab-spark" style="width:24px;height:24px"><svg class="g g-sparkleai" preserveAspectRatio="none"><use href="#p-sparkle-ai"/></svg></span>
+              <svg class="fab-mascot" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+                <g clip-path="url(#clip0_1375_22995)">
+                  <rect width="56" height="56" rx="28" fill="#FF600E"/>
+                  <rect x="-4.979" y="19.1743" width="65.4942" height="49.62" rx="24.81" fill="#8772FD"/>
+                  <rect x="14.9526" y="34.2219" width="13.5351" height="16.1977" rx="6.6566" fill="white"/>
+                  <rect x="27.1538" y="34.2219" width="13.5351" height="16.1977" rx="6.6566" fill="white"/>
+                  <rect x="21.8247" y="38.3264" width="5.32528" height="7.98792" rx="2.66264" fill="#2A042A"/>
+                  <rect x="28.4844" y="38.3264" width="5.32528" height="7.98792" rx="2.66264" fill="#2A042A"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_1375_22995">
+                    <rect width="56" height="56" rx="28" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
               <span class="ic fab-x" style="width:24px;height:24px"><svg class="g g-x" preserveAspectRatio="none"><use href="#p-x24"/></svg></span>
             </button>
 
